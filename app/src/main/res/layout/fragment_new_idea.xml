@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.LoginActivity"
+    android:background="@color/pewter"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_home" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edtTitle"
+            android:hint="@string/title"
+            style="@style/UIEditText.NewIdea"
+            android:lines="1"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edtContext"
+            android:hint="@string/context"
+            style="@style/UIEditText.NewIdea"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edtContent"
+            android:hint="Content goes here.."
+            style="@style/UIEditText.NewIdea"
+            android:lines="10"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLogIn"
+            style="@style/UIEditText"
+            android:layout_marginTop="15dp"
+            android:background="@color/gray"
+            android:text="@string/add_idea"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">Project Brain Android Neda</string>
+    <string name="email_id">Email Id</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="no_account_register_here">No Account? Sign Up Here</string>
+    <string name="firstname">Firstname</string>
+    <string name="lastname">Lastname</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account_sign_in">Already Have An Account? Sign In</string>
+    <string name="title">Title</string>
+    <string name="context">Context</string>
+    <string name="add_idea">Add Idea</string>
+    <string name="new_idea">New Idea</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="log_out">Log Out</string>
+    <string name="user_ideas">User Ideas</string>
+    <string name="search_by_username">Search by Username</string>
+    <string name="to_do">To Do</string>
+    <string name="cite">Cite</string>
+    <string name="user_to_do">User To Do</string>
 </resources>

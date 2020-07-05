@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.LoginActivity"
+    android:background="@color/pewter"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_home" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnUserIdea"
+        android:text="@string/user_ideas"
+        style="@style/UIProfileTextview" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnUserToDo"
+        android:text="@string/user_to_do"
+        style="@style/UIProfileTextview" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnUpdateProfile"
+        android:text="@string/update_profile"
+        style="@style/UIProfileTextview" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnLogout"
+        android:text="@string/log_out"
+        style="@style/UIProfileTextview"
+        android:drawableRight="@android:color/transparent"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"/>
+
+</LinearLayout>
