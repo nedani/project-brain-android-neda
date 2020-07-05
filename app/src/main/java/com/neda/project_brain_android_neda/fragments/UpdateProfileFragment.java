@@ -71,7 +71,7 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
                 break;
 
             case R.id.btnUpdate:
-                imgBack.performClick();
+                checkValidation();
                 break;
         }
     }
