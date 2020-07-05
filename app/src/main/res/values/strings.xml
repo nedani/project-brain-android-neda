@@ -21,4 +21,9 @@
     <string name="to_do">To Do</string>
     <string name="cite">Cite</string>
     <string name="user_to_do">User To Do</string>
+    <string name="toast_enter_emailid">Please enter emailId</string>
+    <string name="toast_enter_password">Please enter password</string>
+    <string name="toast_enter_username">Please enter username</string>
+    <string name="toast_enter_firstname">Please enter firstname</string>
+    <string name="toast_enter_lastname">Please enter lastname</string>
 </resources>
