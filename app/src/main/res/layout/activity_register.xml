@@ -67,14 +67,14 @@
                 android:inputType="textPersonName"/>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnLogIn"
+                android:id="@+id/btnRegister"
                 style="@style/UIEditText"
                 android:layout_marginTop="15dp"
                 android:background="@color/gray"
                 android:text="@string/sign_up"/>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnRegister"
+                android:id="@+id/btnLogin"
                 style="@style/UIEditText"
                 android:layout_marginTop="15dp"
                 android:background="@android:color/transparent"
