@@ -8,10 +8,16 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.model.UserIdeasModel;
+
+import java.util.ArrayList;
 
 public class UserIdeasAdapter extends RecyclerView.Adapter<UserIdeasAdapter.ViewHolder> {
 
-    public UserIdeasAdapter() {
+    private ArrayList<UserIdeasModel.Datum> arrayUserIdeas;
+
+    public UserIdeasAdapter(ArrayList<UserIdeasModel.Datum> arrayUserIdeas) {
+        this.arrayUserIdeas = arrayUserIdeas;
     }
 
     @Override
@@ -24,10 +30,12 @@ public class UserIdeasAdapter extends RecyclerView.Adapter<UserIdeasAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.txtTitle.setText("Android Development");
-        holder.txtContext.setText("Android Development for Final Semester");
-        holder.txtContent.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-        holder.txtPostedBy.setText("Posted By: Human");
+        UserIdeasModel.Datum userIdeaModel = arrayUserIdeas.get(position);
+
+        holder.txtTitle.setText("" + userIdeaModel.getTitle());
+        holder.txtContext.setText("" + userIdeaModel.getContext());
+        holder.txtContent.setText("" + userIdeaModel.getContent());
+        //holder.txtPostedBy.setText("Posted By: Human");
 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +63,7 @@ public class UserIdeasAdapter extends RecyclerView.Adapter<UserIdeasAdapter.View
 
     @Override
     public int getItemCount() {
-        return 10;
+        return arrayUserIdeas.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

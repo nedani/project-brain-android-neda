@@ -2,6 +2,7 @@ package com.neda.project_brain_android_neda.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.activities.HomeActivity;
+import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
+import com.neda.project_brain_android_neda.form.LoginForm;
+import com.neda.project_brain_android_neda.form.UpdateProfileForm;
+import com.neda.project_brain_android_neda.model.LoginResponseModel;
+import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
-public class UpdateProfileFragment extends Fragment implements View.OnClickListener {
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+public class UpdateProfileFragment extends Fragment implements View.OnClickListener, ApiCallBackPost<LoginResponseModel> {
 
     private TextView txtTitle;
     private ImageView imgBack;
@@ -27,6 +38,8 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
     private EditText edtPassword;
     private EditText edtFirstname;
     private EditText edtLastname;
+
+    private SharedPrefsUtil sharedPrefsUtil;
 
     public static UpdateProfileFragment newInstance() {
         UpdateProfileFragment frag = new UpdateProfileFragment();
@@ -47,6 +60,8 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void init(View view) {
+        sharedPrefsUtil = new SharedPrefsUtil(getActivity());
+
         txtTitle = view.findViewById(R.id.txtTitle);
         imgBack = view.findViewById(R.id.imgBack);
         btnUpdate = view.findViewById(R.id.btnUpdate);
@@ -61,6 +76,11 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
 
         // Set Title
         txtTitle.setText(R.string.update_profile);
+
+        edtUsername.setText("" + sharedPrefsUtil.getUsername());
+        edtEmail.setText("" + sharedPrefsUtil.get("email"));
+        edtFirstname.setText("" + sharedPrefsUtil.get("firstname"));
+        edtLastname.setText("" + sharedPrefsUtil.get("lastname"));
     }
 
     @Override
@@ -92,6 +112,35 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void callUserUpdateProfileApi() {
-        imgBack.performClick();
+        UpdateProfileForm updateProfileForm = new UpdateProfileForm();
+        updateProfileForm.setUsername(edtUsername.getText().toString());
+        updateProfileForm.setFirstname(edtFirstname.getText().toString());
+        updateProfileForm.setLastname(edtLastname.getText().toString());
+        new PostTaskJson<UpdateProfileForm, LoginResponseModel>(LoginResponseModel.class, this).execute(updateProfileForm);
+    }
+
+    @Override
+    public void postResult(ResponseEntity<LoginResponseModel> responseEntity) {
+        Log.i("postResult","Response: " + responseEntity.getBody());
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            LoginResponseModel loginResponseModel = responseEntity.getBody();
+            Toast.makeText(
+                    getActivity(),
+                    " Update successfully",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            //Remove Fragment
+            getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+
+            sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
+                    loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
+        } else {
+            Toast.makeText(
+                    getActivity(),
+                    "Error code: " + responseEntity.getStatusCode().toString(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
 }

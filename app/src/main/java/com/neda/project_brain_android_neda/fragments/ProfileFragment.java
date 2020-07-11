@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.neda.project_brain_android_neda.R;
 import com.neda.project_brain_android_neda.activities.LoginActivity;
+import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
@@ -23,6 +24,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private Button btnLogout;
     private Button btnUserIdea;
     private Button btnUserToDo;
+
+    private SharedPrefsUtil sharedPrefsUtil;
 
     public static ProfileFragment newInstance() {
         ProfileFragment frag = new ProfileFragment();
@@ -43,6 +46,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init(View view) {
+        sharedPrefsUtil = new SharedPrefsUtil(getActivity());
+
         txtTitle = view.findViewById(R.id.txtTitle);
 
         btnUpdateProfile = view.findViewById(R.id.btnUpdateProfile);
@@ -78,6 +83,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.btnLogout:
+                sharedPrefsUtil.clear();
+
                 startActivity(new Intent(getActivity(), LoginActivity.class));
                 getActivity().finish();
                 break;

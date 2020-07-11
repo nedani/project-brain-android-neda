@@ -15,6 +15,7 @@ import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
 import com.neda.project_brain_android_neda.form.RegisterForm;
 import com.neda.project_brain_android_neda.model.RegisterResponseModel;
 import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText edtPassword;
     private EditText edtFirstname;
     private EditText edtLastname;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

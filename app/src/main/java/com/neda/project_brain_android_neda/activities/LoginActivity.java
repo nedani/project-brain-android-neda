@@ -17,6 +17,7 @@ import com.neda.project_brain_android_neda.form.RegisterForm;
 import com.neda.project_brain_android_neda.model.LoginResponseModel;
 import com.neda.project_brain_android_neda.model.RegisterResponseModel;
 import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText edtEmail;
     private EditText edtPassword;
 
+    private SharedPrefsUtil sharedPrefsUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +40,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void init() {
+        sharedPrefsUtil = new SharedPrefsUtil(LoginActivity.this);
+
         btnLogIn = findViewById(R.id.btnLogIn);
         btnRegister = findViewById(R.id.btnRegister);
 
@@ -91,6 +96,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     " LoggedIn successfully",
                     Toast.LENGTH_LONG
             ).show();
+
+            sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
+                    loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
 
             startActivity(new Intent(this, HomeActivity.class));
             finish();

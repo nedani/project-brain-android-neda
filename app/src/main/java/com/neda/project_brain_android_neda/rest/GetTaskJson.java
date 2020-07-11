@@ -32,10 +32,13 @@ public class GetTaskJson<T> extends AsyncTask<String, Void, ResponseEntity<T>> {
         final String url = uri[0];
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        //httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        httpHeaders.set("Content-Type", "application/json");
+        httpHeaders.set("Accept", "application/json");
 
         HttpEntity<String> httpEntity = new HttpEntity<>(httpHeaders);
+
+        Log.i("Request","url: " + url);
+        Log.i("Request","header: " + httpHeaders.toString());
 
         try {
             RestTemplate restTemplate = new RestTemplate(true);

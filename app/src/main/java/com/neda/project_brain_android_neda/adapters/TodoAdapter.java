@@ -8,10 +8,17 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.model.UserITodoModel;
+import com.neda.project_brain_android_neda.model.UserIdeasModel;
+
+import java.util.ArrayList;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
-    public TodoAdapter() {
+    private ArrayList<UserITodoModel.Datum> arrayUserTodos;
+
+    public TodoAdapter(ArrayList<UserITodoModel.Datum> arrayUserTodos) {
+        this.arrayUserTodos = arrayUserTodos;
     }
 
     @Override
@@ -24,10 +31,12 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.txtTitle.setText("Android Development");
-        holder.txtContext.setText("Android Development for Final Semester");
-        holder.txtContent.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-        holder.txtPostedBy.setText("Posted By: Human");
+        UserITodoModel.Datum userIdeaModel = arrayUserTodos.get(position);
+
+        holder.txtTitle.setText("" + userIdeaModel.getTitle());
+        holder.txtContext.setText("" + userIdeaModel.getContext());
+        holder.txtContent.setText("" + userIdeaModel.getContent());
+        //holder.txtPostedBy.setText("Posted By: Human");
 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +64,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return 10;
+        return arrayUserTodos.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

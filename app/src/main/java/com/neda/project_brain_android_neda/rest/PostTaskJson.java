@@ -37,9 +37,9 @@ public class PostTaskJson<T extends ApiJsonForm, E> extends AsyncTask<T, Void, R
 
         HttpEntity<String> httpEntity = new HttpEntity<>(jsonObject.toString(), httpHeaders);
 
-        Log.i("Register","url: " + url);
-        Log.i("Register","Request: " + jsonObject.toString());
-        Log.i("Register","header: " + httpHeaders.toString());
+        Log.i("Request","url: " + url);
+        Log.i("Request","Body: " + jsonObject.toString());
+        Log.i("Request","header: " + httpHeaders.toString());
 
         try {
             RestTemplate restTemplate = new RestTemplate(true);
