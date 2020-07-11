@@ -26,4 +26,7 @@
     <string name="toast_enter_username">Please enter username</string>
     <string name="toast_enter_firstname">Please enter firstname</string>
     <string name="toast_enter_lastname">Please enter lastname</string>
+    <string name="toast_enter_title">Please enter title</string>
+    <string name="toast_enter_context">Please enter context</string>
+    <string name="toast_enter_content">Please enter content</string>
 </resources>

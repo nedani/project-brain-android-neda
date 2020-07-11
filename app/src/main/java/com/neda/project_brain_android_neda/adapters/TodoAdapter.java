@@ -1,24 +1,47 @@
 package com.neda.project_brain_android_neda.adapters;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.form.FollowForm;
 import com.neda.project_brain_android_neda.model.UserITodoModel;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
+import com.neda.project_brain_android_neda.util.InternetUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     private ArrayList<UserITodoModel.Datum> arrayUserTodos;
+    private Context context;
+    private String username;
 
-    public TodoAdapter(ArrayList<UserITodoModel.Datum> arrayUserTodos) {
+    public TodoAdapter(Context context, ArrayList<UserITodoModel.Datum> arrayUserTodos, String username) {
         this.arrayUserTodos = arrayUserTodos;
+        this.context = context;
+        this.username = username;
     }
 
     @Override
@@ -31,21 +54,16 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        UserITodoModel.Datum userIdeaModel = arrayUserTodos.get(position);
+        final UserITodoModel.Datum userIdeaModel = arrayUserTodos.get(position);
 
         holder.txtTitle.setText("" + userIdeaModel.getTitle());
         holder.txtContext.setText("" + userIdeaModel.getContext());
         holder.txtContent.setText("" + userIdeaModel.getContent());
-        //holder.txtPostedBy.setText("Posted By: Human");
+        holder.txtPostedBy.setText("Posted By: " + userIdeaModel.getAuthor().getUsername());
+
+        holder.txtToDo.setVisibility(View.GONE);
 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        holder.txtToDo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -56,7 +74,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         holder.txtFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                callApiForFollowUser("" + userIdeaModel.getAuthor().getUsername());
             }
         });
     }
@@ -85,6 +103,56 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             this.txtCite = (TextView) itemView.findViewById(R.id.txtCite);
             this.txtToDo = (TextView) itemView.findViewById(R.id.txtToDo);
             this.txtFollow = (TextView) itemView.findViewById(R.id.txtFollow);
+        }
+    }
+
+    private void callApiForFollowUser(String toBeFollowedUsername) {
+        if (!InternetUtil.isInternetAvailable(context)) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/follow_brain";
+
+        FollowForm followForm = new FollowForm();
+        followForm.setUsername("" + username);
+        followForm.setUsernameToBeFollowed("" + toBeFollowedUsername);
+
+        Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(followForm));
+
+            Log.i("Request","Request: " + request);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    Toast.makeText(
+                            context,
+                            "Followed successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

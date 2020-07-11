@@ -10,17 +10,26 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
-import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
 import com.neda.project_brain_android_neda.form.RegisterForm;
 import com.neda.project_brain_android_neda.model.RegisterResponseModel;
-import com.neda.project_brain_android_neda.rest.PostTaskJson;
-import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
+import com.neda.project_brain_android_neda.util.InternetUtil;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener, ApiCallBackPost<RegisterResponseModel> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnLogin;
     private Button btnRegister;
@@ -87,41 +96,72 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void callRegisterApi() {
-        RegisterForm registerForm = new RegisterForm();
-        registerForm.setEmail(edtEmail.getText().toString());
-        registerForm.setPassword(edtPassword.getText().toString());
-        registerForm.setFirstname(edtFirstname.getText().toString());
-        registerForm.setLastname(edtLastname.getText().toString());
-        registerForm.setUsername(edtUsername.getText().toString());
-        new PostTaskJson<RegisterForm, RegisterResponseModel>(RegisterResponseModel.class, this).execute(registerForm);
-    }
-
     @Override
     public void onBackPressed() {
         btnLogin.performClick();
         super.onBackPressed();
     }
 
-    @Override
-    public void postResult(ResponseEntity<RegisterResponseModel> responseEntity) {
-        Log.i("Register","Response: " + responseEntity.getBody());
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            RegisterResponseModel registerResponseModel = responseEntity.getBody();
-            Toast.makeText(
-                    this,
-                    " Register successfully",
-                    Toast.LENGTH_LONG
-            ).show();
+    private void callRegisterApi() {
+        if (!InternetUtil.isInternetAvailable(RegisterActivity.this)) {
+            return;
+        }
 
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        } else {
-            Toast.makeText(
-                    this,
-                    "Error code: " + responseEntity.getStatusCode().toString(),
-                    Toast.LENGTH_LONG
-            ).show();
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/signup";
+
+        RegisterForm registerForm = new RegisterForm();
+        registerForm.setEmail(edtEmail.getText().toString());
+        registerForm.setPassword(edtPassword.getText().toString());
+        registerForm.setFirstname(edtFirstname.getText().toString());
+        registerForm.setLastname(edtLastname.getText().toString());
+        registerForm.setUsername(edtUsername.getText().toString());
+
+        final Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(registerForm));
+
+            Log.i("Request","Request: " + request);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    RegisterResponseModel registerResponseMode = gson.fromJson(response.toString(), RegisterResponseModel.class);
+
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            " Register successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                    finish();
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            "Error: " + error.networkResponse,
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

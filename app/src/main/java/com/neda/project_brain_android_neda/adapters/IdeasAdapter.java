@@ -1,17 +1,49 @@
 package com.neda.project_brain_android_neda.adapters;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.form.FollowForm;
+import com.neda.project_brain_android_neda.form.NewIdea;
+import com.neda.project_brain_android_neda.form.ToDoForm;
+import com.neda.project_brain_android_neda.model.UserITodoModel;
+import com.neda.project_brain_android_neda.model.UserIdeasModel;
+import com.neda.project_brain_android_neda.util.InternetUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> {
 
-    public IdeasAdapter() {
+    private ArrayList<UserIdeasModel.Datum> arrayUserIdeas;
+    private String username;
+    private Context context;
+
+    public IdeasAdapter(Context context, ArrayList<UserIdeasModel.Datum> arrayUserIdeas, String username) {
+        this.context = context;
+        this.arrayUserIdeas = arrayUserIdeas;
+        this.username = username;
     }
 
     @Override
@@ -24,10 +56,26 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.txtTitle.setText("Android Development");
-        holder.txtContext.setText("Android Development for Final Semester");
-        holder.txtContent.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-        holder.txtPostedBy.setText("Posted By: Human");
+        final UserIdeasModel.Datum userIdeaModel = arrayUserIdeas.get(position);
+
+        holder.txtTitle.setText("" + userIdeaModel.getTitle());
+        holder.txtContext.setText("" + userIdeaModel.getContext());
+        holder.txtContent.setText("" + userIdeaModel.getContent());
+
+        if (userIdeaModel.getAuthor().getUsername().equals("" + username)) {
+            holder.txtPostedBy.setText("Posted By: You");
+
+            holder.txtCite.setVisibility(View.GONE);
+            holder.txtToDo.setVisibility(View.GONE);
+            holder.txtFollow.setVisibility(View.GONE);
+
+        } else {
+            holder.txtPostedBy.setText("Posted By: " + userIdeaModel.getAuthor().getUsername());
+
+            holder.txtCite.setVisibility(View.VISIBLE);
+            holder.txtToDo.setVisibility(View.VISIBLE);
+            holder.txtFollow.setVisibility(View.VISIBLE);
+        }
 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,7 +87,7 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
         holder.txtToDo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                callApiForToDo("" + userIdeaModel.getId());
             }
         });
 
@@ -47,7 +95,7 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
         holder.txtFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                callApiForFollowUser("" + userIdeaModel.getAuthor().getUsername());
             }
         });
     }
@@ -55,7 +103,7 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return 10;
+        return arrayUserIdeas.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -76,6 +124,106 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
             this.txtCite = (TextView) itemView.findViewById(R.id.txtCite);
             this.txtToDo = (TextView) itemView.findViewById(R.id.txtToDo);
             this.txtFollow = (TextView) itemView.findViewById(R.id.txtFollow);
+        }
+    }
+
+    private void callApiForToDo(String ideaId) {
+        if (!InternetUtil.isInternetAvailable(context)) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "relation/save_todo_brain";
+
+        ToDoForm toDoForm = new ToDoForm();
+        toDoForm.setUsername("" + username);
+        toDoForm.setIdeaId("" + ideaId);
+
+        Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(toDoForm));
+
+            Log.i("Request","Request: " + request);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    Toast.makeText(
+                            context,
+                            "Saved in Todo list successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void callApiForFollowUser(String toBeFollowedUsername) {
+        if (!InternetUtil.isInternetAvailable(context)) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/follow_brain";
+
+        FollowForm followForm = new FollowForm();
+        followForm.setUsername("" + username);
+        followForm.setUsernameToBeFollowed("" + toBeFollowedUsername);
+
+        Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(followForm));
+
+            Log.i("Request","Request: " + request);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    Toast.makeText(
+                            context,
+                            "Followed successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

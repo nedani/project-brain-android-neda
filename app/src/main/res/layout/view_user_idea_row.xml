@@ -98,6 +98,19 @@
             android:background="@color/gray"/>
     </LinearLayout>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txtDelete"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:text="Delete"
+        android:layout_gravity="right"
+        android:background="@android:color/holo_red_dark"
+        android:layout_marginRight="10dp"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

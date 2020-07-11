@@ -18,6 +18,8 @@ public class MyApplication extends Application {
 
     private RequestQueue requestQueue;
 
+    private String BASE_URL = "http://192.168.0.22:8080/";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -39,5 +41,9 @@ public class MyApplication extends Application {
 
     public RequestQueue getRequestQueue() {
         return requestQueue;
+    }
+
+    public String getBaseUrl() {
+        return BASE_URL;
     }
 }

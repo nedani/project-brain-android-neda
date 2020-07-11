@@ -2,7 +2,7 @@ package com.neda.project_brain_android_neda.form;
 
 import org.json.JSONObject;
 
-public class LoginForm implements ApiJsonForm {
+public class LoginForm {
 
     private String email;
     private String password;
@@ -13,23 +13,6 @@ public class LoginForm implements ApiJsonForm {
     public LoginForm(String email, String password) {
         this.email = email;
         this.password = password;
-    }
-
-    @Override
-    public String getUrl() {
-        return "http://192.168.0.110:8080/brain/signin";
-    }
-
-    @Override
-    public JSONObject getJson() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("email", getEmail());
-            jsonObject.put("password", getPassword());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
     }
 
     public String getEmail() {

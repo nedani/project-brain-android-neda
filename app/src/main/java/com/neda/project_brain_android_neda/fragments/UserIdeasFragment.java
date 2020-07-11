@@ -29,28 +29,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
-import com.neda.project_brain_android_neda.activities.RegisterActivity;
-import com.neda.project_brain_android_neda.adapters.IdeasAdapter;
 import com.neda.project_brain_android_neda.adapters.UserIdeasAdapter;
-import com.neda.project_brain_android_neda.callback.ApiCallBackGet;
-import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
-import com.neda.project_brain_android_neda.form.GetUserIdeasForm;
-import com.neda.project_brain_android_neda.form.UpdateProfileForm;
-import com.neda.project_brain_android_neda.model.LoginResponseModel;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
-import com.neda.project_brain_android_neda.rest.GetTaskJson;
-import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.InternetUtil;
 import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
-
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 
 public class UserIdeasFragment extends Fragment implements View.OnClickListener {
 
     private TextView txtTitle;
+    private TextView txtNoData;
     private ImageView imgBack;
 
     private RecyclerView recyclerView;
@@ -82,6 +71,7 @@ public class UserIdeasFragment extends Fragment implements View.OnClickListener 
         sharedPrefsUtil = new SharedPrefsUtil(getActivity());
 
         txtTitle = view.findViewById(R.id.txtTitle);
+        txtNoData = view.findViewById(R.id.txtNoData);
         imgBack = view.findViewById(R.id.imgBack);
         recyclerView = view.findViewById(R.id.recyclerView);
 
@@ -96,7 +86,7 @@ public class UserIdeasFragment extends Fragment implements View.OnClickListener 
     }
 
     private void initList() {
-        userIdeasAdapter = new UserIdeasAdapter(arrayUserIdeas);
+        userIdeasAdapter = new UserIdeasAdapter(getActivity(), arrayUserIdeas);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(userIdeasAdapter);
@@ -112,7 +102,11 @@ public class UserIdeasFragment extends Fragment implements View.OnClickListener 
     }
 
     private void callApiToGetUserIdeas() {
-        String url = "http://192.168.0.158:8080/brain/" + sharedPrefsUtil.getUsername() + "/ideas";
+        if (!InternetUtil.isInternetAvailable(getActivity())) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/" + sharedPrefsUtil.getUsername() + "/all_ideas";
 
         JsonObjectRequest
                 jsonObjectRequest
@@ -129,6 +123,12 @@ public class UserIdeasFragment extends Fragment implements View.OnClickListener 
                         UserIdeasModel userIdeasModel = gson.fromJson(response.toString(), UserIdeasModel.class);
 
                         arrayUserIdeas.addAll(userIdeasModel.getData());
+
+                        if (arrayUserIdeas.size() == 0) {
+                            txtNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            txtNoData.setVisibility(View.GONE);
+                        }
 
                         userIdeasAdapter.notifyDataSetChanged();
                     }

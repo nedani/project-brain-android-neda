@@ -16,11 +16,11 @@
         android:background="@android:color/white">
 
         <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/edtEmail"
+            android:id="@+id/edtSearch"
             android:hint="@string/search_by_username"
             android:gravity="center"
             style="@style/UIEditText"
-            android:inputType="textEmailAddress"
+            android:inputType="text"
             android:background="@android:color/white"
             android:padding="8dp"
             android:layout_marginRight="50dp"
@@ -36,9 +36,20 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txtNoData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No data available"
+        android:layout_gravity="center"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    </FrameLayout>
 
 </LinearLayout>

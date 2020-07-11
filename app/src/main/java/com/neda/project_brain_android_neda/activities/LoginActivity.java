@@ -10,19 +10,30 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
-import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
 import com.neda.project_brain_android_neda.form.LoginForm;
 import com.neda.project_brain_android_neda.form.RegisterForm;
 import com.neda.project_brain_android_neda.model.LoginResponseModel;
-import com.neda.project_brain_android_neda.model.RegisterResponseModel;
-import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.InternetUtil;
 import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, ApiCallBackPost<LoginResponseModel> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnLogIn;
     private Button btnRegister;
@@ -80,34 +91,64 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void callLoginApi() {
+        if (!InternetUtil.isInternetAvailable(LoginActivity.this)) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/signin";
+
         LoginForm loginForm = new LoginForm();
         loginForm.setEmail(edtEmail.getText().toString());
         loginForm.setPassword(edtPassword.getText().toString());
-        new PostTaskJson<LoginForm, LoginResponseModel>(LoginResponseModel.class, this).execute(loginForm);
-    }
 
-    @Override
-    public void postResult(ResponseEntity<LoginResponseModel> responseEntity) {
-        Log.i("Login","Response: " + responseEntity.getBody());
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            LoginResponseModel loginResponseModel = responseEntity.getBody();
-            Toast.makeText(
-                    this,
-                    " LoggedIn successfully",
-                    Toast.LENGTH_LONG
-            ).show();
+        final Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(loginForm));
 
-            sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
-                    loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
+            Log.i("Request","Request: " + request);
 
-            startActivity(new Intent(this, HomeActivity.class));
-            finish();
-        } else {
-            Toast.makeText(
-                    this,
-                    "Error code: " + responseEntity.getStatusCode().toString(),
-                    Toast.LENGTH_LONG
-            ).show();
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    LoginResponseModel loginResponseModel = gson.fromJson(response.toString(), LoginResponseModel.class);
+
+                    Toast.makeText(
+                            LoginActivity.this,
+                            " LoggedIn successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
+                            loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
+
+                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                    finish();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(
+                            LoginActivity.this,
+                            "Error: " + error.networkResponse,
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

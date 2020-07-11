@@ -16,19 +16,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
-import com.neda.project_brain_android_neda.activities.HomeActivity;
-import com.neda.project_brain_android_neda.callback.ApiCallBackPost;
-import com.neda.project_brain_android_neda.form.LoginForm;
 import com.neda.project_brain_android_neda.form.UpdateProfileForm;
 import com.neda.project_brain_android_neda.model.LoginResponseModel;
-import com.neda.project_brain_android_neda.rest.PostTaskJson;
+import com.neda.project_brain_android_neda.util.InternetUtil;
 import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class UpdateProfileFragment extends Fragment implements View.OnClickListener, ApiCallBackPost<LoginResponseModel> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class UpdateProfileFragment extends Fragment implements View.OnClickListener {
 
     private TextView txtTitle;
     private ImageView imgBack;
@@ -97,10 +105,7 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void checkValidation() {
-        if (edtPassword.getText().toString().trim().length() == 0) {
-            Toast.makeText(getActivity(), R.string.toast_enter_password, Toast.LENGTH_SHORT).show();
-
-        } else if (edtFirstname.getText().toString().trim().length() == 0) {
+        if (edtFirstname.getText().toString().trim().length() == 0) {
             Toast.makeText(getActivity(), R.string.toast_enter_firstname, Toast.LENGTH_SHORT).show();
 
         } else if (edtLastname.getText().toString().trim().length() == 0) {
@@ -112,35 +117,66 @@ public class UpdateProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void callUserUpdateProfileApi() {
+        if (!InternetUtil.isInternetAvailable(getActivity())) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/update_brain";
+
         UpdateProfileForm updateProfileForm = new UpdateProfileForm();
         updateProfileForm.setUsername(edtUsername.getText().toString());
         updateProfileForm.setFirstname(edtFirstname.getText().toString());
         updateProfileForm.setLastname(edtLastname.getText().toString());
-        new PostTaskJson<UpdateProfileForm, LoginResponseModel>(LoginResponseModel.class, this).execute(updateProfileForm);
-    }
 
-    @Override
-    public void postResult(ResponseEntity<LoginResponseModel> responseEntity) {
-        Log.i("postResult","Response: " + responseEntity.getBody());
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            LoginResponseModel loginResponseModel = responseEntity.getBody();
-            Toast.makeText(
-                    getActivity(),
-                    " Update successfully",
-                    Toast.LENGTH_LONG
-            ).show();
+        final Gson gson = new GsonBuilder().create();
+        JSONObject request = null;
+        try {
+            request = new JSONObject(gson.toJson(updateProfileForm));
 
-            //Remove Fragment
-            getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            Log.i("Request","Request: " + request);
 
-            sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
-                    loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
-        } else {
-            Toast.makeText(
-                    getActivity(),
-                    "Error code: " + responseEntity.getStatusCode().toString(),
-                    Toast.LENGTH_LONG
-            ).show();
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, request, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+                    Log.i("onResponse", "" + response.toString());
+
+                    LoginResponseModel loginResponseModel = gson.fromJson(response.toString(), LoginResponseModel.class);
+
+                    Toast.makeText(
+                            getActivity(),
+                            " Update successfully",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    //Remove Fragment
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(UpdateProfileFragment.this).commit();
+
+                    sharedPrefsUtil.saveLoginData(loginResponseModel.getUsername(),
+                            loginResponseModel.getFirstname(), loginResponseModel.getLastname(), loginResponseModel.getEmail());
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(
+                            getActivity(),
+                            "Error: " + error.networkResponse,
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

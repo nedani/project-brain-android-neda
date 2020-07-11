@@ -26,6 +26,7 @@ import com.neda.project_brain_android_neda.R;
 import com.neda.project_brain_android_neda.adapters.TodoAdapter;
 import com.neda.project_brain_android_neda.model.UserITodoModel;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
+import com.neda.project_brain_android_neda.util.InternetUtil;
 import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 public class UserToDoFragment extends Fragment implements View.OnClickListener {
 
     private TextView txtTitle;
+    private TextView txtNoData;
     private ImageView imgBack;
 
     private RecyclerView recyclerView;
@@ -62,6 +64,7 @@ public class UserToDoFragment extends Fragment implements View.OnClickListener {
 
     private void init(View view) {
         txtTitle = view.findViewById(R.id.txtTitle);
+        txtNoData = view.findViewById(R.id.txtNoData);
         imgBack = view.findViewById(R.id.imgBack);
         recyclerView = view.findViewById(R.id.recyclerView);
 
@@ -78,7 +81,7 @@ public class UserToDoFragment extends Fragment implements View.OnClickListener {
     private void initList() {
         sharedPrefsUtil = new SharedPrefsUtil(getActivity());
 
-        todoAdapter = new TodoAdapter(arrayUserTodos);
+        todoAdapter = new TodoAdapter(getActivity(), arrayUserTodos , "" + sharedPrefsUtil.getUsername());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(todoAdapter);
@@ -94,7 +97,11 @@ public class UserToDoFragment extends Fragment implements View.OnClickListener {
     }
 
     private void callApiToGetUserTodos() {
-        String url = "http://192.168.0.158:8080/brain/" + sharedPrefsUtil.getUsername() + "/todos";
+        if (!InternetUtil.isInternetAvailable(getActivity())) {
+            return;
+        }
+
+        String url = MyApplication.getInstance().getBaseUrl() + "brain/" + sharedPrefsUtil.getUsername() + "/all_todos";
 
         JsonObjectRequest
                 jsonObjectRequest
@@ -111,6 +118,12 @@ public class UserToDoFragment extends Fragment implements View.OnClickListener {
                         UserITodoModel userITodoModel = gson.fromJson(response.toString(), UserITodoModel.class);
 
                         arrayUserTodos.addAll(userITodoModel.getData());
+
+                        if (arrayUserTodos.size() == 0) {
+                            txtNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            txtNoData.setVisibility(View.GONE);
+                        }
 
                         todoAdapter.notifyDataSetChanged();
                     }

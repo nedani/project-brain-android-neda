@@ -43,7 +43,7 @@
             android:lines="10"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnLogIn"
+            android:id="@+id/btnSubmit"
             style="@style/UIEditText"
             android:layout_marginTop="15dp"
             android:background="@color/gray"
