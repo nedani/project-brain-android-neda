@@ -133,6 +133,9 @@ public class UserIdeasModel {
         @SerializedName("id")
         @Expose
         private Integer id;
+        @SerializedName("citeId")
+        @Expose
+        private Integer citeId;
         @SerializedName("title")
         @Expose
         private String title;
@@ -159,9 +162,10 @@ public class UserIdeasModel {
          * @param title
          * @param content
          */
-        public Datum(Integer id, String title, String context, String content, Author author) {
+        public Datum(Integer id,Integer citeId, String title, String context, String content, Author author) {
             super();
             this.id = id;
+            this.citeId = citeId;
             this.title = title;
             this.context = context;
             this.content = content;
@@ -174,6 +178,14 @@ public class UserIdeasModel {
 
         public void setId(Integer id) {
             this.id = id;
+        }
+
+        public Integer getCiteId() {
+            return citeId;
+        }
+
+        public void setCiteId(Integer citeId) {
+            this.citeId = citeId;
         }
 
         public String getTitle() {

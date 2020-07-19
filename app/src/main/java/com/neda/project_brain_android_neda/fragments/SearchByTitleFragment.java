@@ -1,6 +1,5 @@
 package com.neda.project_brain_android_neda.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -28,23 +26,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
-import com.neda.project_brain_android_neda.activities.LoginActivity;
-import com.neda.project_brain_android_neda.activities.RegisterActivity;
 import com.neda.project_brain_android_neda.adapters.IdeasAdapter;
-import com.neda.project_brain_android_neda.form.NewIdea;
-import com.neda.project_brain_android_neda.interfaces.UpdateData;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
 import com.neda.project_brain_android_neda.util.InternetUtil;
 import com.neda.project_brain_android_neda.util.SharedPrefsUtil;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class HomeFragment extends Fragment implements View.OnClickListener, TextWatcher, UpdateData {
+public class SearchByTitleFragment extends Fragment implements View.OnClickListener, TextWatcher {
 
     private TextView txtTitle;
     private TextView txtNoData;
@@ -61,15 +50,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
 
     private boolean isFirstTime = true;
 
-    public static HomeFragment newInstance() {
-        HomeFragment frag = new HomeFragment();
+    public static SearchByTitleFragment newInstance() {
+        SearchByTitleFragment frag = new SearchByTitleFragment();
         return frag;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override
@@ -92,30 +81,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
         edtSearch.addTextChangedListener(this);
 
         // Set Title
-        txtTitle.setText(R.string.home);
+        txtTitle.setText(R.string.search_by_title);
 
         imgSearch.setOnClickListener(this);
-
-        initList();
-
-        callApiToGetAllIdeas();
     }
 
     private void initList() {
-        ideasAdapter = new IdeasAdapter(getActivity(), arrayUserIdeas, sharedPrefsUtil.getUsername(), this);
+        ideasAdapter = new IdeasAdapter(getActivity(), arrayUserIdeas, sharedPrefsUtil.getUsername(), null);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(ideasAdapter);
-    }
-
-    @Override
-    public void updateData() {
-        String searchContent = "" + edtSearch.getText().toString().trim();
-        if (searchContent.length() != 0 && !searchContent.equals("" + sharedPrefsUtil.getUsername())) {
-                callApiToSearchIdea(searchContent);
-        } else {
-            callApiToGetAllIdeas();
-        }
     }
 
     @Override
@@ -125,11 +100,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
                 String searchContent = "" + edtSearch.getText().toString().trim();
                 if (searchContent.length() != 0) {
 
-                    if (searchContent.equals("" + sharedPrefsUtil.getUsername())) {
-                        Toast.makeText(getActivity(),"You can't search by logged in username", Toast.LENGTH_SHORT).show();
-                    } else {
-                        callApiToSearchIdea(searchContent);
-                    }
+                    callApiToSearchIdea(searchContent);
                 } else {
                     Toast.makeText(getActivity(),"No search keyword", Toast.LENGTH_SHORT).show();
                 }
@@ -142,7 +113,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
             return;
         }
 
-        String url = MyApplication.getInstance().getBaseUrl() + "brain/" + searchContent + "/all_ideas";
+        String url = MyApplication.getInstance().getBaseUrl() + searchContent + "/ideas";
 
         JsonObjectRequest
                 jsonObjectRequest
@@ -166,59 +137,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
 
                         if (arrayUserIdeas.size() == 0) {
                             txtNoData.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
                         } else {
                             txtNoData.setVisibility(View.GONE);
-                        }
-
-                        initList();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(
-                                getActivity(),
-                                "Error Message: " + error.getMessage(),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                });
-
-
-        MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
-    }
-
-    private void callApiToGetAllIdeas() {
-        if (!InternetUtil.isInternetAvailable(getActivity())) {
-            return;
-        }
-
-        String url = MyApplication.getInstance().getBaseUrl() + "ideas";
-
-        JsonObjectRequest
-                jsonObjectRequest
-                = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                new Response.Listener() {
-                    @Override
-                    public void onResponse(Object response) {
-                        Log.i("onResponse", "" + response.toString());
-
-                        Gson gson = new GsonBuilder().create();
-                        UserIdeasModel userIdeasModel = gson.fromJson(response.toString(), UserIdeasModel.class);
-
-                        if (arrayUserIdeas.size() > 0) {
-                            arrayUserIdeas = new ArrayList<>();
-                        }
-
-                        arrayUserIdeas.addAll(userIdeasModel.getData());
-
-                        if (arrayUserIdeas.size() == 0) {
-                            txtNoData.setVisibility(View.VISIBLE);
-                        } else {
-                            txtNoData.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
                         }
 
                         initList();
@@ -252,7 +174,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Text
     @Override
     public void afterTextChanged(Editable s) {
         if (!isFirstTime && s.toString().trim().length() == 0) {
-            callApiToGetAllIdeas();
+            recyclerView.setVisibility(View.GONE);
+            txtNoData.setVisibility(View.VISIBLE);
         }
 
         isFirstTime = false;

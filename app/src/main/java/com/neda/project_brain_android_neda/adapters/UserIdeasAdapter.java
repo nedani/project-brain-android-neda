@@ -21,7 +21,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.activities.HomeActivity;
 import com.neda.project_brain_android_neda.form.ToDoForm;
+import com.neda.project_brain_android_neda.fragments.OriginalIdeaFragment;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
 import com.neda.project_brain_android_neda.util.InternetUtil;
 
@@ -58,6 +60,20 @@ public class UserIdeasAdapter extends RecyclerView.Adapter<UserIdeasAdapter.View
         holder.txtContext.setText("" + userIdeaModel.getContext());
         holder.txtContent.setText("" + userIdeaModel.getContent());
         //holder.txtPostedBy.setText("Posted By: Human");
+
+        if (!("" + userIdeaModel.getCiteId()).equals("null")) {
+            holder.txtContext.setTextColor(((HomeActivity) context).getColor(R.color.citeLinkColor));
+        }
+
+        holder.txtContext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!("" + userIdeaModel.getCiteId()).equals("null")) {
+                    ((HomeActivity) context).getSupportFragmentManager().beginTransaction().add(R.id.container,
+                            OriginalIdeaFragment.newInstance("" + userIdeaModel.getCiteId()), OriginalIdeaFragment.class.getSimpleName()).commit();
+                }
+            }
+        });
 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
             @Override

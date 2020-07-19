@@ -7,9 +7,12 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.fragments.CiteIdeaFragment;
 import com.neda.project_brain_android_neda.fragments.HomeFragment;
 import com.neda.project_brain_android_neda.fragments.NewIdeaFragment;
+import com.neda.project_brain_android_neda.fragments.OriginalIdeaFragment;
 import com.neda.project_brain_android_neda.fragments.ProfileFragment;
+import com.neda.project_brain_android_neda.fragments.SearchByTitleFragment;
 import com.neda.project_brain_android_neda.fragments.UpdateProfileFragment;
 import com.neda.project_brain_android_neda.fragments.UserIdeasFragment;
 import com.neda.project_brain_android_neda.fragments.UserToDoFragment;
@@ -31,6 +34,7 @@ public class HomeActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_idea).setText("Idea"));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_home).setText("Home"));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_search).setText("Search"));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_profile).setText("Profile"));
 
         tabLayout.selectTab(tabLayout.getTabAt(1));
@@ -53,6 +57,10 @@ public class HomeActivity extends AppCompatActivity implements TabLayout.OnTabSe
             // Home
             getSupportFragmentManager().beginTransaction().replace(R.id.container,
                     HomeFragment.newInstance(), HomeFragment.class.getSimpleName()).commit();
+        } else if (tab.getPosition() == 2) {
+            // Home
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,
+                    SearchByTitleFragment.newInstance(), SearchByTitleFragment.class.getSimpleName()).commit();
         } else {
             // Profile
             getSupportFragmentManager().beginTransaction().replace(R.id.container,
@@ -76,7 +84,9 @@ public class HomeActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
         if (currentFrag.getTag().equals(UpdateProfileFragment.class.getSimpleName()) ||
                 currentFrag.getTag().equals(UserIdeasFragment.class.getSimpleName()) ||
-                currentFrag.getTag().equals(UserToDoFragment.class.getSimpleName())){
+                currentFrag.getTag().equals(UserToDoFragment.class.getSimpleName()) ||
+                currentFrag.getTag().equals(CiteIdeaFragment.class.getSimpleName()) ||
+                currentFrag.getTag().equals(OriginalIdeaFragment.class.getSimpleName())) {
             getSupportFragmentManager().beginTransaction().remove(currentFrag).commit();
         } else {
             finish();

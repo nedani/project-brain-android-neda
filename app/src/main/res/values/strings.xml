@@ -29,4 +29,7 @@
     <string name="toast_enter_title">Please enter title</string>
     <string name="toast_enter_context">Please enter context</string>
     <string name="toast_enter_content">Please enter content</string>
+    <string name="search_by_title">Search By Title</string>
+    <string name="idea">Idea</string>
+    <string name="original_idea">Original Idea</string>
 </resources>

@@ -2,6 +2,7 @@ package com.neda.project_brain_android_neda.form;
 
 public class NewIdea {
     private String username;
+    private String citeId;
     private String title;
     private String context;
     private String content;
@@ -11,6 +12,14 @@ public class NewIdea {
 
     public NewIdea(String username, String title, String context, String content) {
         this.username = username;
+        this.title = title;
+        this.context = context;
+        this.content = content;
+    }
+
+    public NewIdea(String username, String citeId, String title, String context, String content) {
+        this.username = username;
+        this.citeId = citeId;
         this.title = title;
         this.context = context;
         this.content = content;
@@ -30,6 +39,14 @@ public class NewIdea {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCiteId() {
+        return citeId;
+    }
+
+    public void setCiteId(String citeId) {
+        this.citeId = citeId;
     }
 
     public String getContext() {

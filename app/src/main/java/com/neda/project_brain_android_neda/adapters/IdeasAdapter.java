@@ -20,9 +20,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neda.project_brain_android_neda.MyApplication;
 import com.neda.project_brain_android_neda.R;
+import com.neda.project_brain_android_neda.activities.HomeActivity;
 import com.neda.project_brain_android_neda.form.FollowForm;
 import com.neda.project_brain_android_neda.form.NewIdea;
 import com.neda.project_brain_android_neda.form.ToDoForm;
+import com.neda.project_brain_android_neda.fragments.CiteIdeaFragment;
+import com.neda.project_brain_android_neda.fragments.OriginalIdeaFragment;
+import com.neda.project_brain_android_neda.fragments.UserIdeasFragment;
+import com.neda.project_brain_android_neda.interfaces.UpdateData;
 import com.neda.project_brain_android_neda.model.UserITodoModel;
 import com.neda.project_brain_android_neda.model.UserIdeasModel;
 import com.neda.project_brain_android_neda.util.InternetUtil;
@@ -39,11 +44,13 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
     private ArrayList<UserIdeasModel.Datum> arrayUserIdeas;
     private String username;
     private Context context;
+    private UpdateData updateData;
 
-    public IdeasAdapter(Context context, ArrayList<UserIdeasModel.Datum> arrayUserIdeas, String username) {
+    public IdeasAdapter(Context context, ArrayList<UserIdeasModel.Datum> arrayUserIdeas, String username, UpdateData updateData) {
         this.context = context;
         this.arrayUserIdeas = arrayUserIdeas;
         this.username = username;
+        this.updateData = updateData;
     }
 
     @Override
@@ -61,6 +68,20 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
         holder.txtTitle.setText("" + userIdeaModel.getTitle());
         holder.txtContext.setText("" + userIdeaModel.getContext());
         holder.txtContent.setText("" + userIdeaModel.getContent());
+
+        if (!("" + userIdeaModel.getCiteId()).equals("null")) {
+            holder.txtContext.setTextColor(((HomeActivity) context).getColor(R.color.citeLinkColor));
+        }
+
+            holder.txtContext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!("" + userIdeaModel.getCiteId()).equals("null")) {
+                    ((HomeActivity) context).getSupportFragmentManager().beginTransaction().add(R.id.container,
+                            OriginalIdeaFragment.newInstance("" + userIdeaModel.getCiteId()), OriginalIdeaFragment.class.getSimpleName()).commit();
+                }
+            }
+        });
 
         if (userIdeaModel.getAuthor().getUsername().equals("" + username)) {
             holder.txtPostedBy.setText("Posted By: You");
@@ -80,7 +101,8 @@ public class IdeasAdapter extends RecyclerView.Adapter<IdeasAdapter.ViewHolder> 
         holder.txtCite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                ((HomeActivity) context).getSupportFragmentManager().beginTransaction().add(R.id.container,
+                        CiteIdeaFragment.newInstance("" + userIdeaModel.getId(), "" + userIdeaModel.getTitle(), updateData), CiteIdeaFragment.class.getSimpleName()).commit();
             }
         });
 
